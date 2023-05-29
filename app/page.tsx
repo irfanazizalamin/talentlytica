@@ -1,113 +1,179 @@
-import Image from 'next/image'
+"use client";
+
+import "./result.css";
+import Input from "@/components/Input";
+import { useState } from "react";
+
+interface Field {
+  [key: string]: string | number;
+}
 
 export default function Home() {
+  const headers = [
+    "Name",
+    "Aspect 1",
+    "Aspect 2",
+    "Aspect 3",
+    "Aspect 4",
+    "Action",
+  ];
+
+  const [resultJson, setResultJson] = useState("");
+  const [inputFields, setInputFields] = useState([
+    { aspect1: "", aspect2: "", aspect3: "", aspect4: "" },
+  ]);
+
+  const handleFormChange = (
+    index: number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const data = [...inputFields];
+
+    // @ts-ignore
+    data[index][event.target.name] = event.target.value;
+    setInputFields(data);
+  };
+
+  const addFields = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    let newfield = {
+      aspect1: "",
+      aspect2: "",
+      aspect3: "",
+      aspect4: "",
+    };
+
+    setInputFields([...inputFields, newfield]);
+  };
+
+  const removeFields = (index: number) => {
+    if (index === 0) {
+      return;
+    }
+
+    let data = [...inputFields];
+    data.splice(index, 1);
+    setInputFields(data);
+  };
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const transformedData: { [key: string]: Field } = {};
+
+    inputFields.forEach((item, index) => {
+      Object.keys(item).forEach((key) => {
+        if (key !== "name") {
+          if (!transformedData[key]) {
+            transformedData[key] = {};
+          }
+          const convertedName = `mahasiswa_${index + 1}`;
+          transformedData[key][convertedName] =
+            // @ts-ignore
+            typeof item[key] === "string" ? 0 : parseInt(item[key] as string);
+        }
+      });
+    });
+
+    setResultJson(JSON.stringify(transformedData, undefined, 2));
+    console.log("transformedData", transformedData);
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <form>
+        <table className="table-fixed border-separate border-spacing-1.5">
+          <thead className="">
+            <tr>
+              {headers.map((header, index) => (
+                <th key={index}>{header}</th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {(inputFields || []).map((input, index) => (
+              <tr key={index}>
+                <td width={"200px"}>
+                  <h2 className="text-md whitespace-nowrap font-semibold">
+                    Mahasiswa {index + 1}
+                  </h2>
+                </td>
+                <td>
+                  <Input
+                    name="aspect1"
+                    placeholder="0"
+                    type="number"
+                    value={input.aspect1}
+                    onChange={(event: any) => handleFormChange(index, event)}
+                  />
+                </td>
+                <td>
+                  <Input
+                    name="aspect2"
+                    placeholder="0"
+                    type="number"
+                    value={input.aspect2}
+                    onChange={(event: any) => handleFormChange(index, event)}
+                  />
+                </td>
+                <td>
+                  <Input
+                    name="aspect3"
+                    placeholder="0"
+                    type="number"
+                    value={input.aspect3}
+                    onChange={(event: any) => handleFormChange(index, event)}
+                  />
+                </td>
+                <td>
+                  <Input
+                    name="aspect4"
+                    placeholder="0"
+                    type="number"
+                    value={input.aspect4}
+                    onChange={(event: any) => handleFormChange(index, event)}
+                  />
+                </td>
+                <td width={"160px"} className="text-center">
+                  <button
+                    disabled={index === 0}
+                    onClick={() => removeFields(index)}
+                    className={`font-semibold text-red-400 hover:cursor-pointer ${
+                      inputFields.length === 1 ? "text-neutral-400" : ""
+                    }`}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex gap-4 text-center">
+          <button
+            onClick={addFields}
+            className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-4 border border-blue-500 hover:border-transparent rounded"
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            Add More
+          </button>
+          <button
+            onClick={submit}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 border border-blue-700 rounded"
+          >
+            Conver To JSON
+          </button>
         </div>
-      </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+        <div className="results">
+          <h2 className="results__heading">Form Data</h2>
+          <pre className="results__display-wrapper">
+            <code className="results__display">{resultJson}</code>
+          </pre>
+        </div>
+      </form>
     </main>
-  )
+  );
 }

@@ -17,11 +17,26 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: #f9fdfe;
+  color: #686a69;
+  font-family: "Open Sans", sans-serif;
+  font-size: 18px;
+  line-height: 1.75;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+::before,
+::after {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Heydon Pickering’s lobotomized owl. Details: https://bit.ly/1H7MXUD */
+* + * {
+  margin-top: 16px;
+  margin-top: 16px;
+  margin-top: 1rem;
 }
